@@ -210,6 +210,8 @@ function dialogEnter() {
       addTorrentOptions.value,
       metadataStore.lastDownloader?.options ?? {},
     ) as Required<Omit<CAddTorrentOptions, "localDownloadOption">>;
+
+    metadataStore.getEnabledDownloaders.length === 1 && lastDownloaderId !== undefined && sendToDownloader();
   }
 }
 
