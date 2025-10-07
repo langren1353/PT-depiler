@@ -196,21 +196,22 @@ function dialogEnter() {
   restoreAddTorrentOptions(); // 先重置所有选项，然后如果需要则从uiStore中获取历史情况
   quickSendToClient.value = configStore.download.useQuickSendToClient;
 
+  const lastDownloaderId = metadataStore.lastDownloader?.id;
+  selectedDownloader.value = lastDownloaderId // 如果有上次选择的下载器，则直接使用
+    ? metadataStore.downloaders[lastDownloaderId]
+    : metadataStore.getEnabledDownloaders.length === 1 // 如果只有一个启用的下载器，则直接使用
+      ? metadataStore.getEnabledDownloaders[0]
+      : null;
+
   // 如果不是快速发送到客户端模式，则尝试设置默认下载器
   if (!quickSendToClient.value) {
-    const lastDownloaderId = metadataStore.lastDownloader?.id;
-    selectedDownloader.value = lastDownloaderId // 如果有上次选择的下载器，则直接使用
-      ? metadataStore.downloaders[lastDownloaderId]
-      : metadataStore.getEnabledDownloaders.length === 1 // 如果只有一个启用的下载器，则直接使用
-        ? metadataStore.getEnabledDownloaders[0]
-        : null;
-
     // 将上一次的下载器选项通过 toMerged 合并到当前选项中，而不是直接覆盖
     addTorrentOptions.value = toMerged(
       addTorrentOptions.value,
       metadataStore.lastDownloader?.options ?? {},
     ) as Required<Omit<CAddTorrentOptions, "localDownloadOption">>;
   }
+  sendToDownloader();
 }
 
 function dialogLeave() {
